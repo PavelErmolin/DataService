@@ -25,6 +25,7 @@ public class Runner implements CommandLineRunner {
                         503, new Hamster(503, "Blackwood", 23.75)
                 )
         );
+        System.out.println(hamDao.getAllHamsters());
     }
 
 }
