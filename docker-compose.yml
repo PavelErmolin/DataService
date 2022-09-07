@@ -1,0 +1,27 @@
+version: '3'
+services:
+  rc-mysql:
+    container_name: rc-mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_DATABASE: rc
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
+    restart: always
+
+  rc-redis:
+    container_name: rc-redis
+    image: redis:5
+    ports:
+      - "6379:6379"
+    restart: always
+
+  redis-cache:
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "rc-mysql"
+      - "rc-redis"

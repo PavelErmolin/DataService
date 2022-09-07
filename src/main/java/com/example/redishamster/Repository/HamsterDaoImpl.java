@@ -1,7 +1,7 @@
 package com.example.redishamster.Repository;
 
-import Model.Hamster;
-import Model.IHamsterDao;
+import com.example.redishamster.Model.Hamster;
+import com.example.redishamster.Model.IHamsterDao;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.stereotype.Repository;
 
