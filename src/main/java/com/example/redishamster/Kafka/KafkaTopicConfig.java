@@ -15,8 +15,7 @@ public class KafkaTopicConfig {
 
     @Value(value = "${kafka.bootstrapAddress}")
     private String bootstrapAddress;
-    @Value(value = "${kafka.topic.name}")
-    private String topicName;
+
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -27,7 +26,23 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic topic() {
-        return new NewTopic(topicName, 1, (short) 1);
+    public NewTopic topicGet() {
+        return new NewTopic("GetHamster", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic topicGetAll() {
+        return new NewTopic("GetAllHamsters", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic topicSave() {
+        return new NewTopic("SaveHamster", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic update() {
+        return new NewTopic("UpdateHamster", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic delete() {
+        return new NewTopic("DeleteHamster", 1, (short) 1);
     }
 }

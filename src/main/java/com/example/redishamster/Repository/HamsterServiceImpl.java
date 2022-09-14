@@ -24,7 +24,6 @@ public class HamsterServiceImpl implements HamsterService{
     }
 
     @Override
-    @CachePut(value="Hamster", key="#ham.hamId")
     public Hamster saveHamster(Hamster ham) {
         return hamsterRepo.save(ham);
     }
