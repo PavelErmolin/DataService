@@ -1,6 +1,5 @@
 package com.example.redishamster.Repository;
 
-import com.example.redishamster.Model.Hamster;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -18,8 +17,8 @@ public class AppConfig {
 
 
     @Bean
-    public RedisTemplate<String, Hamster> redisTemplate(RedisConnectionFactory connectionFactory){
-        RedisTemplate<String, Hamster> dataTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory){
+        RedisTemplate<String, String> dataTemplate = new RedisTemplate<>();
         dataTemplate.setConnectionFactory(connectionFactory);
         return dataTemplate;
     }
