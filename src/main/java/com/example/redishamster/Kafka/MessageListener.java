@@ -27,7 +27,6 @@ public class MessageListener {
 
     @KafkaListener(topics = "SaveHamster", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamster(String hamster){
-        System.out.println("lalallala");
         if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(hamster)))), hamster)) {
             mt.insert(new JsonHamsterItem(Integer.parseInt(findId(hamster)), hamster));
         }
