@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,17 @@ public class MessageListener {
         assert jhi != null;
         mp.sendMessage("SendHamster", jhi.getItemJson());
     }
+    @KafkaListener(topics = "GetAllHamsters", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value="JsonHamsterItem")
+    public void GetAllHamsters(){
+        List<JsonHamsterItem> list= mt.findAll(JsonHamsterItem.class);
+        StringBuilder message = new StringBuilder();
+        for (JsonHamsterItem jsonHamsterItem : list) {
+            message.append(jsonHamsterItem.getItemJson());
+        }
+        mp.sendMessage("SendHamster", message.toString());
+        System.out.println(message);
+    }
     @KafkaListener(topics = "SaveHamsters", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamsters(String hamsters){
 
@@ -50,6 +62,7 @@ public class MessageListener {
         for (int i = 1; i<splitted.length; i++){
             splitted[i] = m.group() + splitted[i];
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
+                System.out.println("Consumed item with id " + Integer.parseInt(findId(splitted[i])));
                 mt.insert(new JsonHamsterItem(Integer.parseInt(findId(splitted[i])), splitted[i]));
             }
             else System.out.println("Duplicated Id! Check if "+ Integer.parseInt(findId(splitted[i])) +" is correct");
@@ -96,6 +109,17 @@ public class MessageListener {
         assert jho != null;
         mp.sendMessage("SendOrder", jho.getOrderItems());
     }
+    @KafkaListener(topics = "GetAllOrders", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value="JsonHamsterOrder")
+    public void GetAllOrders(){
+        List<JsonHamsterOrder> list= mt.findAll(JsonHamsterOrder.class);
+        StringBuilder message = new StringBuilder();
+        for (JsonHamsterOrder jsonHamsterOrder : list) {
+            message.append(jsonHamsterOrder.getOrderItems());
+        }
+        mp.sendMessage("SendHamster", message.toString());
+        System.out.println(message);
+    }
     @KafkaListener(topics = "DeleteOrder", containerFactory = "kafkaListenerContainerFactory")
     @CacheEvict(value="JsonHamsterOrder", key="#id")
     public void DeleteOrder(String id){
@@ -135,6 +159,17 @@ public class MessageListener {
         JsonHamsterUser jhu = mt.findById(jsonId, JsonHamsterUser.class);
         assert jhu != null;
         mp.sendMessage("SendUser", jhu.getUserDetails());
+    }
+    @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value="JsonHamsterUser")
+    public void GetAllUsers(){
+        List<JsonHamsterUser> list= mt.findAll(JsonHamsterUser.class);
+        StringBuilder message = new StringBuilder();
+        for (JsonHamsterUser jsonHamsterUser : list) {
+            message.append(jsonHamsterUser.getUserDetails());
+        }
+        mp.sendMessage("SendHamster", message.toString());
+        System.out.println(message);
     }
     @KafkaListener(topics = "DeleteOrder", containerFactory = "kafkaListenerContainerFactory")
     @CacheEvict(value="JsonHamsterUser", key="#id")
