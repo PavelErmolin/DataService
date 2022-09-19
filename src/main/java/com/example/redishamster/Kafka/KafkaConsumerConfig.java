@@ -1,9 +1,7 @@
 package com.example.redishamster.Kafka;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.bson.json.JsonObject;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
