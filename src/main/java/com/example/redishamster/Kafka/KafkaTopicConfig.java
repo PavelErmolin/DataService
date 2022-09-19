@@ -35,7 +35,7 @@ public class KafkaTopicConfig {
     }
     @Bean
     public NewTopic topicSave() {
-        return new NewTopic("SaveHamster", 1, (short) 1);
+        return new NewTopic("save", 1, (short) 1);
     }
     @Bean
     public NewTopic update() {

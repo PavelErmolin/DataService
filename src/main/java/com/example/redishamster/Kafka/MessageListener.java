@@ -1,8 +1,8 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterItem;
-import Model.JsonHamsterOrder;
-import Model.JsonHamsterUser;
+import com.example.orchestrator.model.JsonHamsterItem;
+import com.example.orchestrator.model.JsonHamsterOrder;
+import com.example.orchestrator.model.JsonHamsterUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,7 +25,7 @@ public class MessageListener {
     @Autowired
     private MessageProducer mp;
 
-    @KafkaListener(topics = "SaveHamster", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "save", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamster(String hamster){
         if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(hamster)))), hamster)) {
             mt.insert(new JsonHamsterItem(Integer.parseInt(findId(hamster)), hamster));
