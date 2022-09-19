@@ -5,6 +5,7 @@ import com.example.orchestrator.model.JsonHamsterOrder;
 import com.example.orchestrator.model.JsonHamsterUser;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -45,9 +46,9 @@ public class MessageListener {
         mp.sendMessage("SendHamster", jhi.getItemJson());
         log.info("Product with id {} find", id);
     }
-    @KafkaListener(topics = "SaveHamsters", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "save", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamsters(String hamsters){
-
+        System.out.println(hamsters);
         Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
         String[] splitted = p.split(hamsters);
         Matcher m = p.matcher(hamsters);
