@@ -1,6 +1,5 @@
 package com.example.redishamster.Kafka;
 
-import com.example.redishamster.Model.Hamster;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

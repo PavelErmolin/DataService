@@ -1,8 +1,9 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterItem;
-import Model.JsonHamsterOrder;
-import Model.JsonHamsterUser;
+
+import com.example.orchestrator.model.JsonHamsterItem;
+import com.example.orchestrator.model.JsonHamsterOrder;
+import com.example.orchestrator.model.JsonHamsterUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -41,9 +42,9 @@ public class MessageListener {
         assert jhi != null;
         mp.sendMessage("SendHamster", jhi.getItemJson());
     }
-    @KafkaListener(topics = "SaveHamsters", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "save", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamsters(String hamsters){
-
+        System.out.println(hamsters);
         Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
         String[] splitted = p.split(hamsters);
         Matcher m = p.matcher(hamsters);
