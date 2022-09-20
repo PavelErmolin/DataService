@@ -45,4 +45,6 @@ public class KafkaTopicConfig {
     public NewTopic delete() {
         return new NewTopic("DeleteHamster", 1, (short) 1);
     }
+    @Bean
+    public NewTopic save() {return new NewTopic("save", 1, (short) 1);}
 }
