@@ -27,7 +27,7 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic topicGet() {
-        return new NewTopic("GetHamster", 1, (short) 1);
+        return new NewTopic("getProduct", 1, (short) 1);
     }
     @Bean
     public NewTopic topicGetAll() {
@@ -35,15 +35,15 @@ public class KafkaTopicConfig {
     }
     @Bean
     public NewTopic topicSave() {
-        return new NewTopic("SaveHamster", 1, (short) 1);
+        return new NewTopic("saveProduct", 1, (short) 1);
     }
     @Bean
     public NewTopic update() {
-        return new NewTopic("UpdateHamster", 1, (short) 1);
+        return new NewTopic("updateProduct", 1, (short) 1);
     }
     @Bean
     public NewTopic delete() {
-        return new NewTopic("DeleteHamster", 1, (short) 1);
+        return new NewTopic("deleteProduct", 1, (short) 1);
     }
     @Bean
     public NewTopic save() {return new NewTopic("save", 1, (short) 1);}
