@@ -26,25 +26,35 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic topicGet() {
-        return new NewTopic("getProduct", 1, (short) 1);
+    public NewTopic getProductFromDB() {
+        return new NewTopic("getProductFromDB", 1, (short) 1);
     }
     @Bean
-    public NewTopic topicGetAll() {
-        return new NewTopic("GetAllHamsters", 1, (short) 1);
+    public NewTopic sendProductFromDB() {
+        return new NewTopic("sendProductFromDB", 1, (short) 1);
     }
     @Bean
-    public NewTopic topicSave() {
-        return new NewTopic("saveProduct", 1, (short) 1);
+    public NewTopic getAllProductsDB() {
+        return new NewTopic("getAllProductsDB", 1, (short) 1);
     }
+
     @Bean
-    public NewTopic update() {
-        return new NewTopic("updateProduct", 1, (short) 1);
+    public NewTopic saveProductDB() {
+        return new NewTopic("saveProductDB", 1, (short) 1);
     }
+
     @Bean
-    public NewTopic delete() {
-        return new NewTopic("deleteProduct", 1, (short) 1);
+    public NewTopic updateProductDB() {
+        return new NewTopic("updateProductDB", 1, (short) 1);
     }
+
     @Bean
-    public NewTopic save() {return new NewTopic("save", 1, (short) 1);}
+    public NewTopic deleteProductDB() {
+        return new NewTopic("deleteProductDB", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic save() {
+        return new NewTopic("save", 1, (short) 1);
+    }
 }
