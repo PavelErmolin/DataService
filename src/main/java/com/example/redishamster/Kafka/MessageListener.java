@@ -22,8 +22,6 @@ import java.util.regex.Pattern;
 @Slf4j
 @CacheConfig(cacheNames = "hc")
 public class MessageListener {
-
-
     @Autowired
     private MongoTemplate mt;
     @Autowired
