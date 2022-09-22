@@ -60,7 +60,7 @@ public class MessageListener {
                 mt.insert(new JsonHamsterItem(Integer.parseInt(findId(splitted[i])), splitted[i]));
             } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
         }
-        log.warn("Products save");
+        log.info("Products save");
     }
 
     @KafkaListener(topics = "deleteProductDB", containerFactory = "kafkaListenerContainerFactory")
@@ -77,11 +77,12 @@ public class MessageListener {
         log.info("Product with id {} update", id);
     }
 
-    @KafkaListener(topics = "SaveOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "saveOrderDB", containerFactory = "kafkaListenerContainerFactory")
     public void SaveOrder(String order) {
         if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(order)))), order)) {
             mt.insert(new JsonHamsterOrder(Integer.parseInt(findId(order)), order));
             log.info("Order {} save", order);
+
         } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(order)));
     }
 
@@ -96,12 +97,12 @@ public class MessageListener {
             splitted[i] = m.group() + splitted[i];
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
                 mt.insert(new JsonHamsterOrder(Integer.parseInt(findId(splitted[i])), splitted[i]));
-                log.warn("Orders save");
+                log.info("Orders save");
             } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
         }
     }
 
-    @KafkaListener(topics = "GetOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "getOrderFromDB", containerFactory = "kafkaListenerContainerFactory")
     @Cacheable(value = "JsonHamsterOrder", key = "#id")
     public void GetOrder(String id) {
         int jsonId = Integer.parseInt(id);
@@ -111,21 +112,21 @@ public class MessageListener {
         log.info("Order with id {} find", id);
     }
 
-    @KafkaListener(topics = "DeleteOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "deleteProductDB", containerFactory = "kafkaListenerContainerFactory")
     @CacheEvict(value = "JsonHamsterOrder", key = "#id")
     public void DeleteOrder(String id) {
         mt.findAndRemove(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), JsonHamsterOrder.class);
         log.info("Order with id {} delete", id);
     }
 
-    @KafkaListener(topics = "UpdateOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "updateOrderDB", containerFactory = "kafkaListenerContainerFactory")
     @CachePut(value = "JsonHamsterOrder", key = "#id")
     public void UpdateOrder(String id, String order) {
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), order);
         log.info("Order with id {} update", id);
     }
 
-    @KafkaListener(topics = "SaveUser", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "saveUserDB", containerFactory = "kafkaListenerContainerFactory")
     public void SaveUser(String user) {
         if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(user)))), user)) {
             mt.insert(new JsonHamsterUser(Integer.parseInt(findId(user)), user));
@@ -144,12 +145,13 @@ public class MessageListener {
             splitted[i] = m.group() + splitted[i];
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
                 mt.insert(new JsonHamsterUser(Integer.parseInt(findId(splitted[i])), splitted[i]));
+                log.info("Users save");
             } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
         }
-        log.info("Users save");
+
     }
 
-    @KafkaListener(topics = "GetUser", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "getUserFromDB", containerFactory = "kafkaListenerContainerFactory")
     @Cacheable(value = "JsonHamsterUser", key = "#id")
     public void GetUser(String id) {
         int jsonId = Integer.parseInt(id);
@@ -159,14 +161,14 @@ public class MessageListener {
         log.info("User with id {} find", id);
     }
 
-    @KafkaListener(topics = "DeleteOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "deleteUserDB", containerFactory = "kafkaListenerContainerFactory")
     @CacheEvict(value = "JsonHamsterUser", key = "#id")
     public void DeleteUser(String id) {
         mt.findAndRemove(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), JsonHamsterUser.class);
         log.info("User with id {} delete", id);
     }
 
-    @KafkaListener(topics = "UpdateOrder", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "updateUserDB", containerFactory = "kafkaListenerContainerFactory")
     @CachePut(value = "JsonHamsterUser", key = "#id")
     public void UpdateUser(String id, String user) {
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), user);
