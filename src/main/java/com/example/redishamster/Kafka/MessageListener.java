@@ -52,6 +52,7 @@ public class MessageListener {
         String[] splitted = p.split(hamsters);
         Matcher m = p.matcher(hamsters);
         m.find();
+
         for (int i = 1; i < splitted.length; i++) {
             splitted[i] = m.group() + splitted[i];
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
