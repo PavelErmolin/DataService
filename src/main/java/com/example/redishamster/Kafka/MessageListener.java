@@ -4,8 +4,10 @@ import com.example.orchestrator.model.JsonHamsterItem;
 import com.example.orchestrator.model.JsonHamsterOrder;
 import com.example.orchestrator.model.JsonHamsterUser;
 
+import com.example.orchestrator.repository.RepositoryImitation;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -171,6 +174,21 @@ public class MessageListener {
     public void UpdateUser(String id, String user) {
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), user);
         log.info("User with id {} update", id);
+    }
+
+
+    //todo какой кэш добавить?
+    @KafkaListener(topics = "requestOrdersDataFromDB", containerFactory = "kafkaListenerContainerFactory")
+//    @Cacheable(value = "JsonHamsterUser", key = "#id")
+    public void getOrders(ConsumerRecord<String, String> record) {
+        log.info(record.value());
+        //todo нужны заказы в базе
+//        List<JsonHamsterOrder> ordersList = mt.findAll(JsonHamsterOrder.class);
+//        assert ordersList != null;
+//        mp.sendMessage("sendOrdersDataFromDB", ordersList.toString());
+        String data = RepositoryImitation.ordersData;
+        mp.sendMessage("sendOrdersDataFromDB", data);
+        log.info("Send order list: " + data);
     }
 
 
