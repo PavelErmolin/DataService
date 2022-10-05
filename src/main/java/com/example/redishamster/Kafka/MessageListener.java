@@ -195,4 +195,40 @@ public class MessageListener {
             return null;
         }
     }
+    public String findUsername(String user){
+        Pattern p = Pattern.compile("(?<=username\\\"\\:\\s\\\").*(?=\\\",)");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
+            return null;
+        }
+    }
+    public String findEmail(String user){
+        Pattern p = Pattern.compile("(?<=\\\"email\\\"\\:\\s\\\").*(?=\\\",)");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
+            return null;
+        }
+    }
+    public String findPassword(String user){
+        Pattern p = Pattern.compile("(?<=\\\"password\\\"\\:\\s\\\").*(?=\\\")");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
+            return null;
+        }
+    }
 }
