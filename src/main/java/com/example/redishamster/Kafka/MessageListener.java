@@ -89,17 +89,20 @@ public class MessageListener {
 
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
     public void SaveOrders(String orders) {
-
+        log.info("Starting saving orders");
+        log.info(orders);
         Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
         String[] splitted = p.split(orders);
         Matcher m = p.matcher(orders);
+        log.info("Pattern matched");
         m.find();
+        log.info("Match found");
         for (int i = 1; i < splitted.length; i++) {
             splitted[i] = m.group() + splitted[i];
-            if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
+//            if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
                 mt.insert(new JsonHamsterOrder(Integer.parseInt(findId(splitted[i])), splitted[i]));
                 log.info("Orders save");
-            } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
+//            } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
         }
     }
 
@@ -177,9 +180,8 @@ public class MessageListener {
     }
 
 
-    //todo какой кэш добавить?
     @KafkaListener(topics = "requestOrdersDataFromDB", containerFactory = "kafkaListenerContainerFactory")
-//    @Cacheable(value = "JsonHamsterUser", key = "#id")
+    @Cacheable(value = "JsonHamsterOrder")
     public void getOrders(ConsumerRecord<String, String> record) {
         log.info(record.value());
         //todo нужны заказы в базе
@@ -189,6 +191,18 @@ public class MessageListener {
         String data = RepositoryImitation.ordersData;
         mp.sendMessage("sendOrdersDataFromDB", data);
         log.info("Send order list: " + data);
+    }
+
+    @KafkaListener(topics = "requestProductsDataFromDB", containerFactory = "kafkaListenerContainerFactory")
+//    @Cacheable(value = "JsonHamsterItem", key = "#id")
+    public void getAllProducts(ConsumerRecord<String, String> record) {
+        log.info(record.value());
+//        List<JsonHamsterItem> productsList = mt.findAll(JsonHamsterItem.class);
+//        assert productsList != null;
+//        mp.sendMessage("sendProductsDataFromDB", String.valueOf(productsList));
+        String data = RepositoryImitation.productsData;
+        mp.sendMessage("sendProductsDataFromDB", data);
+        log.info("Send product list: " + data);
     }
 
 
