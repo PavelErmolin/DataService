@@ -4,6 +4,7 @@ import Model.JsonHamsterItem;
 import Model.JsonHamsterOrder;
 import Model.JsonHamsterUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,6 +27,14 @@ public class MessageListener {
     private MongoTemplate mt;
     @Autowired
     private MessageProducer mp;
+
+    @Autowired
+    @Qualifier("userKafka")
+    private KafkaTemplate userKafkaTemplate;
+
+    @Autowired
+    @Qualifier("userKafka")
+    private MessageProducer userMp;
 
     @KafkaListener(topics = "SaveHamster", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamster(String hamster){
@@ -130,14 +140,11 @@ public class MessageListener {
     public void UpdateOrder(String id, String order){
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), order);
     }
-    @KafkaListener(topics = "SaveUser", containerFactory = "kafkaListenerContainerFactory")
-    public void SaveUser(String user){
-        if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(user)))), user)){
-            mt.insert(new JsonHamsterUser(Integer.parseInt(findId(user)), user));
-        }
-        else System.out.println("Duplicated Id! Check if "+ Integer.parseInt(findId(user)) +" is correct");
+    @KafkaListener(topics = "SaveUser", containerFactory = "userKafkaListenerContainerFactory")
+    public void SaveUser(JsonHamsterUser user){
+        mt.insert(user);
     }
-    @KafkaListener(topics = "SaveUsers", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "SaveUsers", containerFactory = "userKafkaListenerContainerFactory")
     public void SaveUsers(String users){
 
         Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
