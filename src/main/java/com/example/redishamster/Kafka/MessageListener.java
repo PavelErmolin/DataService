@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +44,18 @@ public class MessageListener {
         assert jhi != null;
         mp.sendMessage("sendProductFromDB", jhi.getItemJson());
         log.info("Product with id {} find", id);
+    }
+
+    @KafkaListener(topics = "getAllProductsDB", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value="JsonHamsterItem")
+    public void GetAllHamsters(){
+        List<JsonHamsterItem> list= mt.findAll(JsonHamsterItem.class);
+        StringBuilder message = new StringBuilder();
+        for (JsonHamsterItem jsonHamsterItem : list) {
+            message.append(jsonHamsterItem.getItemJson());
+        }
+        mp.sendMessage("sendALlProductsDB", message.toString());
+        System.out.println(message);
     }
 
     @KafkaListener(topics = "save", containerFactory = "kafkaListenerContainerFactory")
@@ -182,6 +195,43 @@ public class MessageListener {
             return m.group();
         } else {
             log.warn("Json doesn't have an id");
+            return null;
+        }
+    }
+
+    public String findUsername(String user){
+        Pattern p = Pattern.compile("(?<=username\\\"\\:\\s\\\").*(?=\\\",)");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
+            return null;
+        }
+    }
+    public String findEmail(String user){
+        Pattern p = Pattern.compile("(?<=\\\"email\\\"\\:\\s\\\").*(?=\\\",)");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
+            return null;
+        }
+    }
+    public String findPassword(String user){
+        Pattern p = Pattern.compile("(?<=\\\"password\\\"\\:\\s\\\").*(?=\\\")");
+        Matcher m = p.matcher(user);
+        if (m.find())
+        {
+            return m.group();
+        }
+        else {
+            System.out.println("Json doesn't contain an username");
             return null;
         }
     }
