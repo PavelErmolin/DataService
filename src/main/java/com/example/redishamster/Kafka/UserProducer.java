@@ -13,24 +13,24 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @Slf4j
 @NoArgsConstructor
 @Component
-public class MessageProducer {
+public class UserProducer {
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, JsonHamsterUser> userKafkaTemplate;
 
 
-    public void sendMessage(String topicName, String hamster) {
-        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, hamster);
+    public void sendMessage(String topicName, JsonHamsterUser user) {
+        ListenableFuture<SendResult<String, JsonHamsterUser>> future = userKafkaTemplate.send(topicName, user);
 
-        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+        future.addCallback(new ListenableFutureCallback<>() {
             @Override
             public void onFailure(Throwable throwable) {
-                log.error("Unable to send message = {} dut to: {}", hamster, throwable.getMessage());
+                log.error("Unable to send message = {} dut to: {}", user, throwable.getMessage());
             }
 
             @Override
-            public void onSuccess(SendResult<String, String> stringDataSendResult) {
-                log.info("Sent Message = {} with offset = {}", hamster, stringDataSendResult.getRecordMetadata().offset());
+            public void onSuccess(SendResult<String, JsonHamsterUser> stringDataSendResult) {
+                log.info("Sent Message = {} with offset = {}", user, stringDataSendResult.getRecordMetadata().offset());
             }
         });
     }

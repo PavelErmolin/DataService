@@ -65,7 +65,7 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
-    @Bean (name = "userKafka")
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> userKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userConsumerFactory());

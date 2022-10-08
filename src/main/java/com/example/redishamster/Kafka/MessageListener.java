@@ -16,6 +16,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,12 +30,8 @@ public class MessageListener {
     private MessageProducer mp;
 
     @Autowired
-    @Qualifier("userKafka")
-    private KafkaTemplate userKafkaTemplate;
+    private UserProducer userKafkaTemplate;
 
-    @Autowired
-    @Qualifier("userKafka")
-    private MessageProducer userMp;
 
     @KafkaListener(topics = "SaveHamster", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamster(String hamster){
@@ -142,30 +139,36 @@ public class MessageListener {
     }
     @KafkaListener(topics = "SaveUser", containerFactory = "userKafkaListenerContainerFactory")
     public void SaveUser(JsonHamsterUser user){
-        mt.insert(user);
-    }
-    @KafkaListener(topics = "SaveUsers", containerFactory = "userKafkaListenerContainerFactory")
-    public void SaveUsers(String users){
-
-        Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
-        String[] splitted = p.split(users);
-        Matcher m = p.matcher(users);
-        m.find();
-        for (int i = 1; i<splitted.length; i++){
-            splitted[i] = m.group() + splitted[i];
-            if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
-                mt.insert(new JsonHamsterUser(Integer.parseInt(findId(splitted[i])), splitted[i]));
-            }
-            else System.out.println("Duplicated Id! Check if "+ Integer.parseInt(findId(splitted[i])) +" is correct");
+        System.out.println(user);
+        long userId = System.currentTimeMillis();
+        if (mt.exists(Query.query(Criteria.where("_id").is(userId)), JsonHamsterUser.class)) {
+            userId += System.currentTimeMillis();
         }
+        user.setId(userId);
+        mt.insert(user);
+        System.out.println(mt.find(Query.query(Criteria.where("_id").is(userId)), JsonHamsterUser.class));
     }
+//    @KafkaListener(topics = "SaveUsers", containerFactory = "userKafkaListenerContainerFactory")
+//    public void SaveUsers(String users){
+//
+//        Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
+//        String[] splitted = p.split(users);
+//        Matcher m = p.matcher(users);
+//        m.find();
+//        for (int i = 1; i<splitted.length; i++){
+//            splitted[i] = m.group() + splitted[i];
+//            if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
+//                mt.insert(new JsonHamsterUser(Integer.parseInt(findId(splitted[i])), splitted[i]));
+//            }
+//            else System.out.println("Duplicated Id! Check if "+ Integer.parseInt(findId(splitted[i])) +" is correct");
+//        }
+//    }
     @KafkaListener(topics = "GetUser", containerFactory = "kafkaListenerContainerFactory")
     @Cacheable(value="JsonHamsterUser", key="#id")
-    public void GetUser(String id){
-        int jsonId = Integer.parseInt(id);
-        JsonHamsterUser jhu = mt.findById(jsonId, JsonHamsterUser.class);
+    public void GetUser(String username){
+        JsonHamsterUser jhu = mt.findOne(Query.query(Criteria.where("username").is(username)), JsonHamsterUser.class);
         assert jhu != null;
-        mp.sendMessage("SendUser", jhu.getUserDetails());
+        userKafkaTemplate.sendMessage("SendUser", jhu);
     }
     @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")
     @Cacheable(value="JsonHamsterUser")
@@ -173,7 +176,7 @@ public class MessageListener {
         List<JsonHamsterUser> list= mt.findAll(JsonHamsterUser.class);
         StringBuilder message = new StringBuilder();
         for (JsonHamsterUser jsonHamsterUser : list) {
-            message.append(jsonHamsterUser.getUserDetails());
+            message.append(jsonHamsterUser);
         }
         mp.sendMessage("SendHamster", message.toString());
         System.out.println(message);

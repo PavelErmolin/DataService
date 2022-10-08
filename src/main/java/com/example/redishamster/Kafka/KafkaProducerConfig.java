@@ -43,7 +43,7 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
-    @Bean (name = "userKafka")
+    @Bean (name = "userKafkaProd")
     public KafkaTemplate<String, JsonHamsterUser> userKafkaTemplate() {
         return new KafkaTemplate<>(userProducerFactory());
     }
