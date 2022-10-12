@@ -1,5 +1,6 @@
 package com.example.redishamster.Kafka;
 
+import com.bezkoder.spring.security.mongodb.models.User;
 import com.example.orchestrator.model.JsonHamsterItem;
 import com.example.orchestrator.model.JsonHamsterOrder;
 import com.example.orchestrator.model.JsonHamsterUser;
@@ -40,9 +41,9 @@ public class MessageListener {
     public void SaveHamster(String hamster){
         if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(hamster)))), hamster)) {
             mt.insert(new JsonHamsterItem(Integer.parseInt(findId(hamster)), hamster));
-            log.info("Product {} save", product);
+            log.info("Product {} save", hamster);
         }
-        else else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(product)));
+        else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(hamster)));
     }
 
     @KafkaListener(topics = "getProductFromDB", containerFactory = "kafkaListenerContainerFactory")
@@ -154,15 +155,15 @@ public class MessageListener {
         log.info("Order with id {} update", id);
     }
     @KafkaListener(topics = "SaveUser", containerFactory = "userKafkaListenerContainerFactory")
-    public void SaveUser(JsonHamsterUser user){
+    public void SaveUser(User user){
         System.out.println(user);
         long userId = System.currentTimeMillis();
-        if (mt.exists(Query.query(Criteria.where("_id").is(userId)), JsonHamsterUser.class)) {
+        if (mt.exists(Query.query(Criteria.where("_id").is(userId)), User.class)) {
             userId += System.currentTimeMillis();
         }
-        user.setId(userId);
+        user.setId(String.valueOf(userId));
         mt.insert(user);
-        System.out.println(mt.find(Query.query(Criteria.where("_id").is(userId)), JsonHamsterUser.class));
+        System.out.println(mt.find(Query.query(Criteria.where("_id").is(userId)), User.class));
         log.info("User {} save", user);
     }
 //    @KafkaListener(topics = "SaveUsers", containerFactory = "userKafkaListenerContainerFactory")
@@ -181,10 +182,12 @@ public class MessageListener {
 //        }
 //    }
     @KafkaListener(topics = "GetUser", containerFactory = "kafkaListenerContainerFactory")
-    @Cacheable(value="JsonHamsterUser", key="#id")
+//    @Cacheable(value="User", key="#id")
     public void GetUser(String username){
-        JsonHamsterUser jhu = mt.findOne(Query.query(Criteria.where("username").is(username)), JsonHamsterUser.class);
+        System.out.println(username);
+        User jhu = mt.findOne(Query.query(Criteria.where("username").is(username)), User.class);
         assert jhu != null;
+        System.out.println(jhu);
         userKafkaTemplate.sendMessage("SendUser", jhu);
     }
     @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")

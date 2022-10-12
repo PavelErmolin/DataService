@@ -1,6 +1,7 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterUser;
+import com.bezkoder.spring.security.mongodb.models.User;
+import com.example.orchestrator.model.JsonHamsterUser;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,11 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 public class UserProducer {
 
     @Autowired
-    private KafkaTemplate<String, JsonHamsterUser> userKafkaTemplate;
+    private KafkaTemplate<String, User> userKafkaTemplate;
 
 
-    public void sendMessage(String topicName, JsonHamsterUser user) {
-        ListenableFuture<SendResult<String, JsonHamsterUser>> future = userKafkaTemplate.send(topicName, user);
+    public void sendMessage(String topicName, User user) {
+        ListenableFuture<SendResult<String, User>> future = userKafkaTemplate.send(topicName, user);
 
         future.addCallback(new ListenableFutureCallback<>() {
             @Override
@@ -29,7 +30,7 @@ public class UserProducer {
             }
 
             @Override
-            public void onSuccess(SendResult<String, JsonHamsterUser> stringDataSendResult) {
+            public void onSuccess(SendResult<String, User> stringDataSendResult) {
                 log.info("Sent Message = {} with offset = {}", user, stringDataSendResult.getRecordMetadata().offset());
             }
         });

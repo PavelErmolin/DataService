@@ -1,7 +1,6 @@
 package com.example.redishamster;
 
 
-import Model.JsonHamsterUser;
 import com.example.redishamster.Kafka.MessageListener;
 import lombok.extern.slf4j.Slf4j;
 import com.example.redishamster.Kafka.MessageProducer;
@@ -22,9 +21,9 @@ public class RedisHamsterApplication {
     public static void main(String[] args) {
         SpringApplication.run(RedisHamsterApplication.class, args);
         log.warn("Data service run! " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
-        ApplicationContext context = SpringApplication.run(RedisHamsterApplication.class, args);
-        MessageProducer producer = context.getBean(MessageProducer.class);
-        MessageListener listener = context.getBean(MessageListener.class);
+//       SpringApplication.run(RedisHamsterApplication.class, args);
+//        MessageProducer producer = context.getBean(MessageProducer.class);
+//        MessageListener listener = context.getBean(MessageListener.class);
 
     }
     @Bean

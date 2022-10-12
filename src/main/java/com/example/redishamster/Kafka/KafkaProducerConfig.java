@@ -1,6 +1,7 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterUser;
+import com.bezkoder.spring.security.mongodb.models.User;
+import com.example.orchestrator.model.JsonHamsterUser;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,7 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
-    public ProducerFactory<String, JsonHamsterUser> userProducerFactory() {
+    public ProducerFactory<String, User> userProducerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -44,7 +45,7 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(producerFactory());
     }
     @Bean (name = "userKafkaProd")
-    public KafkaTemplate<String, JsonHamsterUser> userKafkaTemplate() {
+    public KafkaTemplate<String, User> userKafkaTemplate() {
         return new KafkaTemplate<>(userProducerFactory());
     }
 }
