@@ -7,6 +7,7 @@ import com.example.orchestrator.model.JsonHamsterUser;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheConfig;
@@ -18,8 +19,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,18 +72,34 @@ public class MessageListener {
     }
     @KafkaListener(topics = "SaveHamsters", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamsters(String hamsters){
+        System.out.println(hamsters);
+        Pattern p = Pattern.compile("\\{'id': \\w+");
+        String[] splitted = hamsters.split("\\{'id': \\w+");
+        for (String str : splitted) {
+            System.out.println(str);
+        }
+        System.out.println(splitted.length);
+        List<String> allMatches = new ArrayList<>();
 
-        Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
-        String[] splitted = p.split(hamsters);
         Matcher m = p.matcher(hamsters);
-        m.find();
+        while (m.find()) {
+            allMatches.add(m.group());
+        }
+        System.out.println(allMatches);
+
         for (int i = 1; i < splitted.length; i++) {
-            splitted[i] = m.group() + splitted[i];
+            String product = allMatches.get(i - 1) + splitted[i];
+            if (i + 1 < splitted.length) {
+                splitted[i] = product.substring(0, product.length() - 2);
+            } else {
+                splitted[i] = product.substring(0, product.length() - 1);
+            }
+
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
                 mt.insert(new JsonHamsterItem(Integer.parseInt(findId(splitted[i])), splitted[i]));
+                log.info("Product saved");
             } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(splitted[i])));
         }
-        log.info("Products save");
     }
 
     @KafkaListener(topics = "deleteProductDB", containerFactory = "kafkaListenerContainerFactory")
@@ -107,13 +127,23 @@ public class MessageListener {
 
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
     public void SaveOrders(String orders) {
-
-        Pattern p = Pattern.compile("\\W\\s+\\\"id\\\"");
-        String[] splitted = p.split(orders);
+        log.info("Starting saving orders");
+        String[] splitted = orders.split("\\{'id': \\w+, 'products'");
+        Pattern p = Pattern.compile("\\{'id': \\w+, 'products'");
+        List<String> allMatches = new ArrayList<String>();
         Matcher m = p.matcher(orders);
-        m.find();
+        while (m.find()) {
+            allMatches.add(m.group());
+        }
+
         for (int i = 1; i < splitted.length; i++) {
-            splitted[i] = m.group() + splitted[i];
+            String order = allMatches.get(i - 1) + splitted[i];
+            if (i + 1 < splitted.length) {
+                splitted[i] = order.substring(0, order.length() - 2);
+            } else {
+                splitted[i] = order.substring(0, order.length() - 1);
+            }
+
             if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(splitted[i])))), splitted[i])) {
                 mt.insert(new JsonHamsterOrder(Integer.parseInt(findId(splitted[i])), splitted[i]));
                 log.info("Orders save");
@@ -216,6 +246,42 @@ public class MessageListener {
         log.info("User with id {} update", id);
     }
 
+    @KafkaListener(topics = "requestOrdersDataFromDB", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value = "JsonHamsterOrder")
+    public void getOrders(ConsumerRecord<String, String> record) {
+        log.info(record.value());
+        List<JsonHamsterOrder> ordersList = mt.findAll(JsonHamsterOrder.class);
+        assert ordersList != null;
+        mp.sendMessage("sendOrdersDataFromDB", ordersList.toString());
+        log.info("Send order list: " + ordersList);
+    }
+
+    @KafkaListener(topics = "requestProductsDataFromDB", containerFactory = "kafkaListenerContainerFactory")
+    @Cacheable(value = "JsonHamsterItem")
+    public void getAllProducts(ConsumerRecord<String, String> record) {
+        log.info(record.value());
+        List<JsonHamsterItem> productsList = mt.findAll(JsonHamsterItem.class);
+        assert productsList != null;
+        mp.sendMessage("sendProductsDataFromDB", String.valueOf(productsList));
+        log.info("Send product list: " + productsList);
+    }
+
+    @KafkaListener(topics = "requestProductsAndOrdersDataFromDB", containerFactory = "kafkaListenerContainerFactory")
+//    @Cacheable(value = "JsonHamsterItem", key = "#id")
+    public void getAllProductsAndOrders(ConsumerRecord<String, String> record) {
+        log.info(record.value());
+        List<JsonHamsterItem> productsList = mt.findAll(JsonHamsterItem.class);
+        assert productsList != null;
+        mp.sendMessage("sendProductsDataFromDBForBasket", productsList.toString());
+
+        List<JsonHamsterOrder> ordersList = mt.findAll(JsonHamsterOrder.class);
+        assert ordersList != null;
+        mp.sendMessage("sendOrdersDataFromDBForBasket", ordersList.toString());
+
+        log.info("Send product list: " + productsList);
+        log.info("Send order list: " + ordersList);
+    }
+
 
     public String findId(String hamster) {
         Pattern p = Pattern.compile("\\d+");
@@ -266,3 +332,4 @@ public class MessageListener {
         }
     }
 }
+
