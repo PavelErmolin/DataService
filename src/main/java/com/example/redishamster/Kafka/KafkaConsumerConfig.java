@@ -1,6 +1,6 @@
 package com.example.redishamster.Kafka;
 
-import com.example.orchestrator.model.JsonHamsterUser;
+import com.bezkoder.spring.security.mongodb.models.User;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
@@ -41,7 +41,8 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), jsonDeserializer);
     }
 
-    public ConsumerFactory<String, JsonHamsterUser> userConsumerFactory() {
+
+    public ConsumerFactory<String, User> userConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "consuming");
@@ -51,7 +52,7 @@ public class KafkaConsumerConfig {
         typeMapper.setIdClassMapping(classMap);
         typeMapper.addTrustedPackages("*");
 
-        JsonDeserializer<JsonHamsterUser> jsonDeserializer = new JsonDeserializer<>(JsonHamsterUser.class);
+        JsonDeserializer<User> jsonDeserializer = new JsonDeserializer<>(User.class);
         jsonDeserializer.setTypeMapper(typeMapper);
         jsonDeserializer.setUseTypeMapperForKey(true);
 
@@ -85,10 +86,11 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactoryTwo());
         return factory;
+    }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> userKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, User> userKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, User> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userConsumerFactory());
         return factory;
     }
