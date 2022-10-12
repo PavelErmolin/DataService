@@ -40,6 +40,23 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), jsonDeserializer);
     }
 
+    public ConsumerFactory<String, JsonHamsterUser> userConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "consuming");
+
+        DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
+        Map<String, Class<?>> classMap = new HashMap<>();
+        typeMapper.setIdClassMapping(classMap);
+        typeMapper.addTrustedPackages("*");
+
+        JsonDeserializer<JsonHamsterUser> jsonDeserializer = new JsonDeserializer<>(JsonHamsterUser.class);
+        jsonDeserializer.setTypeMapper(typeMapper);
+        jsonDeserializer.setUseTypeMapperForKey(true);
+
+        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), jsonDeserializer);
+    }
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -66,6 +83,12 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryTwo() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactoryTwo());
+        return factory;
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> userKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(userConsumerFactory());
         return factory;
     }
 }
