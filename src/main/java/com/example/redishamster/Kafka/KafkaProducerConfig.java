@@ -1,6 +1,7 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterUser;
+
+import com.example.orchestrator.model.JsonHamsterUser;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

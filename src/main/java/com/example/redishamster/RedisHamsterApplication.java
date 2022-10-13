@@ -1,7 +1,6 @@
 package com.example.redishamster;
 
 
-import Model.JsonHamsterUser;
 import com.example.redishamster.Kafka.MessageListener;
 import lombok.extern.slf4j.Slf4j;
 import com.example.redishamster.Kafka.MessageProducer;

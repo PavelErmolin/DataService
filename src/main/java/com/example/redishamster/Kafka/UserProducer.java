@@ -1,6 +1,7 @@
 package com.example.redishamster.Kafka;
 
-import Model.JsonHamsterUser;
+
+import com.example.orchestrator.model.JsonHamsterUser;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
