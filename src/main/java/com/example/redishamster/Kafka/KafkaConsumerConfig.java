@@ -1,5 +1,6 @@
 package com.example.redishamster.Kafka;
 
+import com.example.orchestrator.model.JsonHamsterUser;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
@@ -84,6 +85,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactoryTwo());
         return factory;
+    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, JsonHamsterUser> userKafkaListenerContainerFactory() {
