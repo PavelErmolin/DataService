@@ -206,14 +206,13 @@ public class MessageListener {
     }
     @KafkaListener(topics = "SaveUser", containerFactory = "userKafkaListenerContainerFactory")
     public void SaveUser(User user){
-        System.out.println(user);
         long userId = System.currentTimeMillis();
         if (mt.exists(Query.query(Criteria.where("_id").is(userId)), User.class)) {
             userId += System.currentTimeMillis();
         }
         user.setId(String.valueOf(userId));
         mt.insert(user);
-        System.out.println(mt.find(Query.query(Criteria.where("_id").is(userId)), User.class));
+//        System.out.println(mt.find(Query.query(Criteria.where("_id").is(userId)), User.class));
         log.info("User {} save", user);
     }
 //    @KafkaListener(topics = "SaveUsers", containerFactory = "userKafkaListenerContainerFactory")
@@ -234,10 +233,8 @@ public class MessageListener {
     @KafkaListener(topics = "GetUser", containerFactory = "kafkaListenerContainerFactory")
 //    @Cacheable(value="User", key="#id")
     public void GetUser(String username){
-        System.out.println(username);
         User jhu = mt.findOne(Query.query(Criteria.where("username").is(username)), User.class);
         assert jhu != null;
-        System.out.println(jhu);
         userKafkaTemplate.sendMessage("SendUser", jhu);
     }
     @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")
@@ -249,7 +246,6 @@ public class MessageListener {
             message.append(jsonHamsterUser);
         }
         mp.sendMessage("SendHamster", message.toString());
-        System.out.println(message);
     }
 
     @KafkaListener(topics = "deleteUserDB", containerFactory = "kafkaListenerContainerFactory")
