@@ -1,7 +1,6 @@
 package com.example.redishamster.Kafka;
 
 import com.bezkoder.spring.security.mongodb.models.User;
-import com.example.orchestrator.model.JsonHamsterUser;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

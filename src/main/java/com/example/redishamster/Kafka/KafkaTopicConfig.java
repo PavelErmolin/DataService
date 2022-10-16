@@ -25,6 +25,7 @@ public class KafkaTopicConfig {
         return new KafkaAdmin(config);
     }
 
+
     @Bean
     public NewTopic getProductFromDB() {
         return new NewTopic("getProductFromDB", 1, (short) 1);
@@ -57,4 +58,5 @@ public class KafkaTopicConfig {
     public NewTopic save() {
         return new NewTopic("save", 1, (short) 1);
     }
+
 }
