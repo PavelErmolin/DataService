@@ -63,8 +63,9 @@ public class MessageListener {
         for (JsonHamsterItem jsonHamsterItem : list) {
             message.append(jsonHamsterItem.getItemJson());
         }
-        System.out.println(message);
+        log.info("Products receive for Front");
         mp.sendMessage("sendALlProducts", "["+message.toString().trim()+"]");
+
     }
 //    @KafkaListener(topics = "SaveHamsters", containerFactory = "kafkaListenerContainerFactory")
 //    public void SaveHamsters(String hamsters){

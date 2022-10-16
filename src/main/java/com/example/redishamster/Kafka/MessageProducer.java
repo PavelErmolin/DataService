@@ -29,7 +29,7 @@ public class MessageProducer {
 
             @Override
             public void onSuccess(SendResult<String, String> stringDataSendResult) {
-                log.info("Sent Message = {} with offset = {}", hamster, stringDataSendResult.getRecordMetadata().offset());
+                log.info("Sent Message with offset = {}", stringDataSendResult.getRecordMetadata().offset());
             }
         });
     }
