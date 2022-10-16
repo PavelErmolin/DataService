@@ -21,9 +21,6 @@ public class RedisHamsterApplication {
     public static void main(String[] args) {
         SpringApplication.run(RedisHamsterApplication.class, args);
         log.warn("Data service run! " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
-//       SpringApplication.run(RedisHamsterApplication.class, args);
-//        MessageProducer producer = context.getBean(MessageProducer.class);
-//        MessageListener listener = context.getBean(MessageListener.class);
 
     }
     @Bean

@@ -3,7 +3,7 @@ package com.example.redishamster.Kafka;
 import com.bezkoder.spring.security.mongodb.models.User;
 import com.example.orchestrator.model.JsonHamsterItem;
 import com.example.orchestrator.model.JsonHamsterOrder;
-import com.example.orchestrator.model.JsonHamsterUser;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +20,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -29,13 +28,10 @@ import java.util.regex.Pattern;
 @Slf4j
 @CacheConfig(cacheNames = "hc")
 public class MessageListener {
-
-
     @Autowired
     private MongoTemplate mt;
     @Autowired
     private MessageProducer mp;
-
     @Autowired
     private UserProducer userKafkaTemplate;
 
@@ -50,8 +46,9 @@ public class MessageListener {
     }
 
     @KafkaListener(topics = "getProductFromDB", containerFactory = "kafkaListenerContainerFactory")
-    @Cacheable(value = "JsonHamsterItem", key = "#id")
+//    @Cacheable(value = "JsonHamsterItem", key = "#id")
     public void GetProduct(String id) {
+        log.info("Get message");
         int jsonId = Integer.parseInt(id);
         JsonHamsterItem jhi = mt.findById(jsonId, JsonHamsterItem.class);
         assert jhi != null;
@@ -238,23 +235,23 @@ public class MessageListener {
         assert jhu != null;
         userKafkaTemplate.sendMessage("SendUser", jhu);
     }
-    @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")
-    @Cacheable(value="JsonHamsterUser")
-    public void GetAllUsers(){
-        List<JsonHamsterUser> list= mt.findAll(JsonHamsterUser.class);
-        StringBuilder message = new StringBuilder();
-        for (JsonHamsterUser jsonHamsterUser : list) {
-            message.append(jsonHamsterUser);
-        }
-        mp.sendMessage("SendHamster", message.toString());
-    }
+//    @KafkaListener(topics = "GetAllUsers", containerFactory = "kafkaListenerContainerFactory")
+//    @Cacheable(value="JsonHamsterUser")
+//    public void GetAllUsers(){
+//        List<JsonHamsterUser> list= mt.findAll(JsonHamsterUser.class);
+//        StringBuilder message = new StringBuilder();
+//        for (JsonHamsterUser jsonHamsterUser : list) {
+//            message.append(jsonHamsterUser);
+//        }
+//        mp.sendMessage("SendHamster", message.toString());
+//    }
 
-    @KafkaListener(topics = "deleteUserDB", containerFactory = "kafkaListenerContainerFactory")
-    @CacheEvict(value = "JsonHamsterUser", key = "#id")
-    public void DeleteUser(String id) {
-        mt.findAndRemove(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), JsonHamsterUser.class);
-        log.info("User with id {} delete", id);
-    }
+//    @KafkaListener(topics = "deleteUserDB", containerFactory = "kafkaListenerContainerFactory")
+//    @CacheEvict(value = "JsonHamsterUser", key = "#id")
+//    public void DeleteUser(String id) {
+//        mt.findAndRemove(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), JsonHamsterUser.class);
+//        log.info("User with id {} delete", id);
+//    }
 
     @KafkaListener(topics = "updateUserDB", containerFactory = "kafkaListenerContainerFactory")
     @CachePut(value = "JsonHamsterUser", key = "#id")
