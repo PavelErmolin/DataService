@@ -137,11 +137,15 @@ public class MessageListener {
 
     @KafkaListener(topics = "saveOrderDB", containerFactory = "kafkaListenerContainerFactory")
     public void SaveOrder(String order) {
-        if (!mt.exists(Query.query(Criteria.where("_id").is(Integer.parseInt(findId(order)))), order)) {
-            mt.insert(new JsonHamsterOrder(Integer.parseInt(findId(order)), order));
-            log.info("Order {} save", order);
+        String ord = order.substring(0, order.length() - 1).substring(0, order.length() - 2).replace("\\","").substring(10);
+        long orderId = System.currentTimeMillis();
 
-        } else log.warn("Duplicated Id! Check if {} is correct", Integer.parseInt(findId(order)));
+       if (mt.exists(Query.query(Criteria.where("id").is(orderId)), ord)) {
+            orderId += System.currentTimeMillis();
+        }
+
+        mt.insert(new JsonHamsterOrder((int) orderId, ord));
+        log.info("Order {} save", order);
     }
 
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
