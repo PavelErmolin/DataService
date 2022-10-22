@@ -258,9 +258,10 @@ public class MessageListener {
 //        log.info("User with id {} delete", id);
 //    }
 
-    @KafkaListener(topics = "updateUserDB", containerFactory = "kafkaListenerContainerFactory")
-    @CachePut(value = "JsonHamsterUser", key = "#id")
-    public void UpdateUser(String id, String user) {
+    @KafkaListener(topics = "updateUserDB", containerFactory = "userKafkaListenerContainerFactory")
+//    @CachePut(value = "JsonHamsterUser", key = "#id")
+    public void UpdateUser(User user) {
+        String id = user.getId();
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), user);
         log.info("User with id {} update", id);
     }

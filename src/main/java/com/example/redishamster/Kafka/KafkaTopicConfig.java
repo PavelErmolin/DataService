@@ -58,5 +58,5 @@ public class KafkaTopicConfig {
     public NewTopic save() {
         return new NewTopic("save", 1, (short) 1);
     }
-
 }
+
