@@ -262,7 +262,7 @@ public class MessageListener {
 //    @CachePut(value = "JsonHamsterUser", key = "#id")
     public void UpdateUser(User user) {
         String id = user.getId();
-        mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(id))), user);
+        mt.findAndReplace(Query.query(Criteria.where("_id").is(id)), user);
         log.info("User with id {} update", id);
     }
 
