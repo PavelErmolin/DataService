@@ -1,6 +1,7 @@
 package com.example.redishamster.Kafka;
 
 import com.bezkoder.spring.security.mongodb.models.User;
+import com.example.orchestrator.model.JsonHamsterComment;
 import com.example.orchestrator.model.JsonHamsterItem;
 import com.example.orchestrator.model.JsonHamsterOrder;
 
@@ -147,6 +148,40 @@ public class MessageListener {
 
         mt.insert(new JsonHamsterOrder((int) orderId, ord));
         log.info("Order {} save", order);
+    }
+
+    @KafkaListener(topics = "saveRateDB", containerFactory = "kafkaListenerContainerFactory")
+    public void saveRate(String str) {
+        String rate = str.substring(9, 10);
+        String idProduct = str.substring(24, str.length()-1);
+        JsonHamsterItem jhi = mt.findById(Integer.parseInt(idProduct), JsonHamsterItem.class);
+        System.out.println(jhi.getItemJson());
+        String firstJsonPart = jhi.getItemJson().substring(0,jhi.getItemJson().indexOf("rating") +9);
+        String secondJsonPart = jhi.getItemJson().substring(jhi.getItemJson().indexOf("rating") +13);
+        if (mt.exists(Query.query(Criteria.where("id").is(idProduct)), rate)) {
+            idProduct += System.currentTimeMillis();
+        }
+
+        List<JsonHamsterComment> listComments= mt.findAll(JsonHamsterComment.class);
+        double sum = 0;
+        int count = 1;
+        for (var comment : listComments) {
+            if(comment.getProductId() == Integer.parseInt(idProduct)) {
+            sum += comment.getRate();
+            count++;
+            }
+        }
+        sum = sum + Integer.parseInt(rate);
+        double sumRating = sum/count;
+        String strSumRating = String.format("%.2f",sumRating);
+        String jsonUpdating = firstJsonPart + strSumRating + secondJsonPart;
+        jhi.setItemJson(jsonUpdating);
+        mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(idProduct))), jhi);
+
+        JsonHamsterComment comment = new JsonHamsterComment(Integer.parseInt(idProduct), Integer.parseInt(rate));
+        mt.insert(comment);
+
+        log.info("Rate and ID {} save", str);
     }
 
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
