@@ -6,6 +6,7 @@ import com.example.orchestrator.model.JsonHamsterItem;
 import com.example.orchestrator.model.JsonHamsterOrder;
 
 
+import com.example.orchestrator.model.JsonReview;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -37,7 +38,8 @@ public class MessageListener {
     private MessageProducer mp;
     @Autowired
     private UserProducer userKafkaTemplate;
-
+    @Autowired
+    private ReviewProducer kafkaReviewTemplate;
 
     @KafkaListener(topics = "SaveHamster", containerFactory = "kafkaListenerContainerFactory")
     public void SaveHamster(String hamster){
@@ -391,6 +393,25 @@ public class MessageListener {
             System.out.println("Json doesn't contain an username");
             return null;
         }
+    }
+
+
+    @KafkaListener(topics = "SaveReview", containerFactory = "reviewKafkaListenerContainerFactory")
+    public void SaveUser(JsonReview review){
+        long reviewId = System.currentTimeMillis();
+        if (mt.exists(Query.query(Criteria.where("_id").is(reviewId)), User.class)) {
+            reviewId += System.currentTimeMillis();
+        }
+        review.setId(String.valueOf(reviewId));
+        mt.insert(review);
+        log.info("Review {} save", review);
+    }
+
+    @KafkaListener(topics = "GetReview", containerFactory = "kafkaListenerContainerFactory")
+    public void GetReview(String id){
+        JsonReview review = mt.findOne(Query.query(Criteria.where("id").is(id)), JsonReview.class);
+        assert review != null;
+        kafkaReviewTemplate.sendMessage("SendReview", review);
     }
 }
 

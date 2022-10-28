@@ -1,9 +1,9 @@
 package com.example.redishamster.Kafka;
 
 import com.bezkoder.spring.security.mongodb.models.User;
+import com.example.orchestrator.model.JsonReview;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -58,6 +58,15 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), jsonDeserializer);
     }
+    public ConsumerFactory<String, JsonReview> reviewConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "consuming");
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), new JsonDeserializer<>(JsonReview.class));
+    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
@@ -65,6 +74,7 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
+
 
     @Bean
     public Map<String, Object> consumerConfigs() {
@@ -92,6 +102,12 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, User> userKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, User> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userConsumerFactory());
+        return factory;
+    }
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, JsonReview> reviewKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, JsonReview> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(reviewConsumerFactory());
         return factory;
     }
 }
