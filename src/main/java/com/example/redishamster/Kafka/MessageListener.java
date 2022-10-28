@@ -184,17 +184,20 @@ public class MessageListener {
         mp.sendMessage("SendOrder", jho.getOrderItems());
         log.info("Order with id {} find", id);
     }
+
     @KafkaListener(topics = "GetAllOrders", containerFactory = "kafkaListenerContainerFactory")
-    @Cacheable(value="JsonHamsterOrder")
+//    @Cacheable(value="JsonHamsterOrder")
     public void GetAllOrders(){
         List<JsonHamsterOrder> list= mt.findAll(JsonHamsterOrder.class);
         StringBuilder message = new StringBuilder();
+
         for (JsonHamsterOrder jsonHamsterOrder : list) {
-            message.append(jsonHamsterOrder.getOrderItems());
+            message.append("{ id:"+jsonHamsterOrder.getId()+","+jsonHamsterOrder.getOrderItems().substring(1,jsonHamsterOrder.getOrderItems().length()));
         }
         mp.sendMessage("SendHamster", message.toString());
         System.out.println(message);
     }
+
     @KafkaListener(topics = "DeleteOrder", containerFactory = "kafkaListenerContainerFactory")
     @CacheEvict(value="JsonHamsterOrder", key="#id")
     public void DeleteOrder(String id){
