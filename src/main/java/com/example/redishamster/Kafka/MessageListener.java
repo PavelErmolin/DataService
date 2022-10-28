@@ -9,6 +9,7 @@ import com.example.orchestrator.model.JsonHamsterOrder;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.decimal4j.util.DoubleRounder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.util.BsonUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 
 
@@ -155,7 +157,6 @@ public class MessageListener {
         String rate = str.substring(9, 10);
         String idProduct = str.substring(24, str.length()-1);
         JsonHamsterItem jhi = mt.findById(Integer.parseInt(idProduct), JsonHamsterItem.class);
-        System.out.println(jhi.getItemJson());
         String firstJsonPart = jhi.getItemJson().substring(0,jhi.getItemJson().indexOf("rating") +9);
         String secondJsonPart = jhi.getItemJson().substring(jhi.getItemJson().indexOf("rating") +13);
         if (mt.exists(Query.query(Criteria.where("id").is(idProduct)), rate)) {
@@ -173,15 +174,16 @@ public class MessageListener {
         }
         sum = sum + Integer.parseInt(rate);
         double sumRating = sum/count;
-        String strSumRating = String.format("%.2f",sumRating);
-        String jsonUpdating = firstJsonPart + strSumRating + secondJsonPart;
+        double result = Math.rint(100.0 * sumRating) / 100.0;
+
+        String jsonUpdating = firstJsonPart + result + secondJsonPart;
         jhi.setItemJson(jsonUpdating);
         mt.findAndReplace(Query.query(Criteria.where("_id").is(Integer.parseInt(idProduct))), jhi);
-
         JsonHamsterComment comment = new JsonHamsterComment(Integer.parseInt(idProduct), Integer.parseInt(rate));
         mt.insert(comment);
 
         log.info("Rate and ID {} save", str);
+
     }
 
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
