@@ -189,8 +189,8 @@ public class MessageListener {
     @KafkaListener(topics = "SaveOrders", containerFactory = "kafkaListenerContainerFactory")
     public void SaveOrders(String orders) {
         log.info("Starting saving orders");
-        String[] splitted = orders.split("\\{'id': \\w+, 'products'");
-        Pattern p = Pattern.compile("\\{'id': \\w+, 'products'");
+        String[] splitted = orders.split("\\{\"products\"");
+        Pattern p = Pattern.compile("\\{\"products\"");
         List<String> allMatches = new ArrayList<String>();
         Matcher m = p.matcher(orders);
         while (m.find()) {
