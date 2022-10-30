@@ -101,7 +101,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                 <url>https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-starter-data-redis/2.7.3/spring-boot-starter-data-redis-2.7.3.pom <url>
+            
         </dependency>
         <dependency>
             <groupId>com.bezkoder</groupId>
