@@ -66,7 +66,7 @@ public class MessageListener {
         for (JsonHamsterItem jsonHamsterItem : list) {
             message.append(jsonHamsterItem.getItemJson());
         }
-        log.info("Products receive for Front");
+        log.info("Products receive for Front" + "["+message.toString().trim()+"]");
         mp.sendMessage("sendALlProducts", "["+message.toString().trim()+"]");
 
     }
@@ -293,19 +293,21 @@ public class MessageListener {
         mt.findAndReplace(Query.query(Criteria.where("_id").is(id)), user);
         log.info("User with id {} update", id);
     }
-//    @KafkaListener(topics = "GetAllOrders", containerFactory = "kafkaListenerContainerFactory")
-////    @Cacheable(value="JsonHamsterOrder")
-//    public void GetAllOrders(){
-//        List<JsonHamsterOrder> list= mt.findAll(JsonHamsterOrder.class);
-//        StringBuilder message = new StringBuilder();
-//        message.append("[");
-//        for (JsonHamsterOrder jsonHamsterOrder : list) {
-//            message.append("{ id:"+jsonHamsterOrder.getId()+","+jsonHamsterOrder.getOrderItems().substring(1,jsonHamsterOrder.getOrderItems().length()));
-//        }
-//        message.append("]");
-//        mp.sendMessage("SendHamster", message.toString());
-//        System.out.println(message);
-//    }
+    @KafkaListener(topics = "GetAllOrders", containerFactory = "kafkaListenerContainerFactory")
+//    @Cacheable(value="JsonHamsterOrder")
+    public void GetAllOrders(){
+        List<JsonHamsterOrder> list= mt.findAll(JsonHamsterOrder.class);
+        StringBuilder message = new StringBuilder();
+        message.append("[");
+        for (JsonHamsterOrder jsonHamsterOrder : list) {
+            message.append("{ \"id\":" +jsonHamsterOrder.getId()+","+jsonHamsterOrder.getOrderItems().substring(1,jsonHamsterOrder.getOrderItems().length()));
+            message.append(",");
+        }
+        String orders = message.substring(0,message.length()-1)+"]";
+        assert message != null;
+        mp.sendMessage("SendHamster", orders);
+        System.out.println(orders);
+    }
 
     @KafkaListener(topics = "requestOrdersDataFromDB", containerFactory = "kafkaListenerContainerFactory")
 //    @Cacheable(value = "JsonHamsterOrder")
